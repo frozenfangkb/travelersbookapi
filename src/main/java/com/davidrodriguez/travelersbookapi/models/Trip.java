@@ -27,4 +27,5 @@ public class Trip {
     private List<Day> days;
     @DBRef
     private User owner;
+    private boolean isPublished;
 }

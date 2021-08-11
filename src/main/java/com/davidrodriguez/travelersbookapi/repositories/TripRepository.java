@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface TripRepository extends MongoRepository<Trip, String> {
     List<Trip> findTripsByOwnerId(String id);
+    Trip findTripById(String id);
 }
