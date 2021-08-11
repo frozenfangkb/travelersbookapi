@@ -16,7 +16,7 @@ public interface TripServiceInterface {
             String lodgingAddress,
             LocalDate initialDate,
             LocalDate endDate,
-            List<Member> members,
+            List<String> members,
             String mainImage
     );
     void deleteTrip(String id);

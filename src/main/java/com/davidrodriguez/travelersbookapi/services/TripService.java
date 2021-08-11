@@ -2,16 +2,20 @@ package com.davidrodriguez.travelersbookapi.services;
 
 import com.davidrodriguez.travelersbookapi.models.Member;
 import com.davidrodriguez.travelersbookapi.models.Trip;
+import com.davidrodriguez.travelersbookapi.repositories.MemberRepository;
 import com.davidrodriguez.travelersbookapi.repositories.TripRepository;
 import lombok.Data;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
-@Service @Data
+@Service @Data @Transactional
 public class TripService implements TripServiceInterface {
     private final TripRepository tripRepository;
+    private MemberRepository memberRepository;
 
     @Override
     public List<Trip> getAllTrips() {
@@ -29,7 +33,32 @@ public class TripService implements TripServiceInterface {
     }
 
     @Override
-    public String saveTrip(String name, String destination, String lodgingAddress, LocalDate initialDate, LocalDate endDate, List<Member> members, String mainImage) {
+    public String saveTrip(
+            String name,
+            String destination,
+            String lodgingAddress,
+            LocalDate initialDate,
+            LocalDate endDate,
+            List<String> members,
+            String mainImage
+    ) {
+        // TODO: Check the whole method when JWT is implemented in order to change the user part
+        Trip newTrip = new Trip();
+        List<Member> tripMembers = new ArrayList<>();
+
+        members.forEach(member -> {
+            if(!memberRepository.existsMemberByName(member)) {
+                Member tempMember = new Member();
+                tempMember.setName(member);
+            }
+        });
+
+        newTrip.setName(name);
+        newTrip.setDestination(destination);
+        newTrip.setLodgingAddress(lodgingAddress);
+        newTrip.setInitialDate(initialDate);
+        newTrip.setEndDate(endDate);
+
         return null;
     }
 
