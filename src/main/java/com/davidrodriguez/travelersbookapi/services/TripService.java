@@ -1,9 +1,10 @@
 package com.davidrodriguez.travelersbookapi.services;
 
-import com.davidrodriguez.travelersbookapi.models.Member;
-import com.davidrodriguez.travelersbookapi.models.Trip;
+import com.davidrodriguez.travelersbookapi.models.*;
+import com.davidrodriguez.travelersbookapi.repositories.DayRepository;
 import com.davidrodriguez.travelersbookapi.repositories.MemberRepository;
 import com.davidrodriguez.travelersbookapi.repositories.TripRepository;
+import com.davidrodriguez.travelersbookapi.repositories.UserRepository;
 import lombok.Data;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,10 +13,14 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+
 @Service @Data @Transactional
 public class TripService implements TripServiceInterface {
     private final TripRepository tripRepository;
-    private MemberRepository memberRepository;
+    private final MemberRepository memberRepository;
+    private final UserRepository userRepository;
+    private final DayRepository dayRepository;
 
     @Override
     public List<Trip> getAllTrips() {
@@ -34,32 +39,60 @@ public class TripService implements TripServiceInterface {
 
     @Override
     public String saveTrip(
-            String name,
-            String destination,
-            String lodgingAddress,
-            LocalDate initialDate,
-            LocalDate endDate,
-            List<String> members,
-            String mainImage
+            NewTripStructure trip
     ) {
         // TODO: Check the whole method when JWT is implemented in order to change the user part
         Trip newTrip = new Trip();
+        tripRepository.insert(newTrip);
         List<Member> tripMembers = new ArrayList<>();
 
-        members.forEach(member -> {
+        trip.getMembers().forEach(member -> {
             if(!memberRepository.existsMemberByName(member)) {
                 Member tempMember = new Member();
                 tempMember.setName(member);
+                memberRepository.insert(tempMember);
             }
         });
 
-        newTrip.setName(name);
-        newTrip.setDestination(destination);
-        newTrip.setLodgingAddress(lodgingAddress);
-        newTrip.setInitialDate(initialDate);
-        newTrip.setEndDate(endDate);
+        // TODO: Change all this part and get the user from the auth instead of this
+        User owner = new User();
+        owner.setName("Test user");
+        owner.setEmail("test@example.com");
+        owner.setUsername("teeeest");
+        userRepository.insert(owner);
 
-        return null;
+        int daysToGenerate = (int)DAYS.between(trip.getInitialDate(), trip.getEndDate());
+        List<Day> tripDays = new ArrayList<>();
+
+        for (int i = 1; i <= daysToGenerate; i++) {
+            LocalDate tempDate = LocalDate.of(
+                    trip.getInitialDate().getYear(),
+                    trip.getInitialDate().getMonth(),
+                    trip.getInitialDate().getDayOfMonth()
+            );
+            if (i > 1) {
+                tempDate = tempDate.plusDays(i-1);
+            }
+            Day tempDay = new Day();
+            tempDay.setDate(tempDate);
+            tempDay.setTripRef(newTrip.getId());
+            dayRepository.insert(tempDay);
+            tripDays.add(tempDay);
+        }
+
+        newTrip.setName(trip.getName());
+        newTrip.setDestination(trip.getDestination());
+        newTrip.setLodgingAddress(trip.getLodgingAddress());
+        newTrip.setInitialDate(trip.getInitialDate());
+        newTrip.setEndDate(trip.getEndDate());
+        newTrip.setMembers(tripMembers);
+        newTrip.setPublished(false);
+        newTrip.setOwner(owner);
+        newTrip.setDays(tripDays);
+
+        tripRepository.save(newTrip);
+
+        return newTrip.getId();
     }
 
     @Override
