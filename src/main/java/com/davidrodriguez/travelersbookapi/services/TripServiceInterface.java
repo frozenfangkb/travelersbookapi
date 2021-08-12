@@ -10,6 +10,7 @@ import java.util.List;
 public interface TripServiceInterface {
     List<Trip> getAllTrips();
     List<Trip> getOwnTrips(String ownerId);
+    Trip getTripById(String id);
     Trip getTrip(String id);
     String saveTrip(
             NewTripStructure trip

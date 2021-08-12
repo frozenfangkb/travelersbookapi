@@ -15,8 +15,6 @@ import java.util.List;
 public class Day {
     @Id
     private String id;
-    @DBRef
-    private String tripRef;
     private String title;
     private LocalDate date;
     private String mainImage;

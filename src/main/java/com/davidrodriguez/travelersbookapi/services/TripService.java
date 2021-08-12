@@ -28,6 +28,11 @@ public class TripService implements TripServiceInterface {
     }
 
     @Override
+    public Trip getTripById(String id) {
+        return tripRepository.findTripById(id);
+    }
+
+    @Override
     public List<Trip> getOwnTrips(String ownerId) {
         return tripRepository.findTripsByOwnerId(ownerId);
     }
@@ -51,6 +56,7 @@ public class TripService implements TripServiceInterface {
                 Member tempMember = new Member();
                 tempMember.setName(member);
                 memberRepository.insert(tempMember);
+                tripMembers.add(tempMember);
             }
         });
 
@@ -75,7 +81,6 @@ public class TripService implements TripServiceInterface {
             }
             Day tempDay = new Day();
             tempDay.setDate(tempDate);
-            tempDay.setTripRef(newTrip.getId());
             dayRepository.insert(tempDay);
             tripDays.add(tempDay);
         }
