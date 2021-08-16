@@ -1,17 +1,26 @@
 package com.davidrodriguez.travelersbookapi.services;
 
+import com.davidrodriguez.travelersbookapi.helpers.FileUploadUtil;
 import com.davidrodriguez.travelersbookapi.models.*;
 import com.davidrodriguez.travelersbookapi.repositories.DayRepository;
 import com.davidrodriguez.travelersbookapi.repositories.MemberRepository;
 import com.davidrodriguez.travelersbookapi.repositories.TripRepository;
 import com.davidrodriguez.travelersbookapi.repositories.UserRepository;
 import lombok.Data;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -109,5 +118,27 @@ public class TripService implements TripServiceInterface {
     @Override
     public Trip updateTrip(Trip trip) {
         return null;
+    }
+
+    @Override
+    public void uploadTripImage(
+            MultipartFile image,
+            String tripId
+    ) throws IOException
+    {
+        // TODO: Check for older images and delete them if exist
+        if(tripRepository.existsById(tripId)) {
+            Trip trip = tripRepository.findTripById(tripId);
+            String fileName = StringUtils.cleanPath(Objects.requireNonNull(image.getOriginalFilename()));
+
+            trip.setMainImage(fileName);
+            tripRepository.save(trip);
+
+            String uploadDir = "trip-images/" + trip.getId();
+
+            FileUploadUtil.saveFile(uploadDir, fileName, image);
+        } else {
+            throw new IllegalStateException("The requested trip wasn't found");
+        }
     }
 }
