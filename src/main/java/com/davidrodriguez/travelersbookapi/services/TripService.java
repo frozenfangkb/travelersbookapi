@@ -7,13 +7,9 @@ import com.davidrodriguez.travelersbookapi.repositories.MemberRepository;
 import com.davidrodriguez.travelersbookapi.repositories.TripRepository;
 import com.davidrodriguez.travelersbookapi.repositories.UserRepository;
 import lombok.Data;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -43,7 +39,9 @@ public class TripService implements TripServiceInterface {
 
     @Override
     public List<Trip> getOwnTrips(String ownerId) {
-        return tripRepository.findTripsByOwnerId(ownerId);
+        User user = userRepository.findUserByUsername(ownerId);
+
+        return tripRepository.findTripsByOwnerId(user.getId());
     }
 
     @Override
@@ -53,11 +51,13 @@ public class TripService implements TripServiceInterface {
 
     @Override
     public String saveTrip(
-            NewTripStructure trip
+            NewTripStructure trip,
+            String userId
     ) {
         // TODO: Check the whole method when JWT is implemented in order to change the user part
         Trip newTrip = new Trip();
         tripRepository.insert(newTrip);
+        User owner = userRepository.findUserByUsername(userId);
         List<Member> tripMembers = new ArrayList<>();
 
         trip.getMembers().forEach(member -> {
@@ -68,13 +68,6 @@ public class TripService implements TripServiceInterface {
                 tripMembers.add(tempMember);
             }
         });
-
-        // TODO: Change all this part and get the user from the auth instead of this
-        User owner = new User();
-        owner.setName("Test user");
-        owner.setEmail("test@example.com");
-        owner.setUsername("teeeest");
-        userRepository.insert(owner);
 
         int daysToGenerate = (int)DAYS.between(trip.getInitialDate(), trip.getEndDate());
         List<Day> tripDays = new ArrayList<>();

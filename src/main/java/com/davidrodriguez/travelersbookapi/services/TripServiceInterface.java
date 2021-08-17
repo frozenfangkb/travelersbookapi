@@ -19,7 +19,8 @@ public interface TripServiceInterface {
     Trip getTripById(String id);
     Trip getTrip(String id);
     String saveTrip(
-            NewTripStructure trip
+            NewTripStructure trip,
+            String userId
     );
     void deleteTrip(String id);
     Trip updateTrip(Trip trip);
