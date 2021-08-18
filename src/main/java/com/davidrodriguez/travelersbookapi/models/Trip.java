@@ -28,4 +28,6 @@ public class Trip {
     @DBRef
     private User owner;
     private boolean isPublished;
+    @DBRef
+    private TripDescription tripDescription;
 }
