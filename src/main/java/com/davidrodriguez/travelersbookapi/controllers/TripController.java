@@ -49,9 +49,12 @@ public class TripController {
     @GetMapping("/image/{tripId}")
     public ResponseEntity<byte[]> getTripImage(HttpServletResponse response, @PathVariable(value="tripId") String tripId) throws IOException {
         ClassPathResource img = tripService.getTripImage(tripId);
-        byte[] bytes = StreamUtils.copyToByteArray(img.getInputStream());
-
-        return ResponseEntity.ok().body(Base64.encodeBase64(bytes));
+        if (img != null) {
+            byte[] bytes = StreamUtils.copyToByteArray(img.getInputStream());
+            return ResponseEntity.ok().body(Base64.encodeBase64(bytes));
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping("/newTrip")
