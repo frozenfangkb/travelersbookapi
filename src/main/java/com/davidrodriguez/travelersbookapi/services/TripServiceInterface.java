@@ -3,6 +3,7 @@ package com.davidrodriguez.travelersbookapi.services;
 import com.davidrodriguez.travelersbookapi.models.Member;
 import com.davidrodriguez.travelersbookapi.models.NewTripStructure;
 import com.davidrodriguez.travelersbookapi.models.Trip;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,4 +26,5 @@ public interface TripServiceInterface {
     void deleteTrip(String id);
     Trip updateTrip(Trip trip);
     void uploadTripImage(MultipartFile image, String tripId) throws IOException;
+    ClassPathResource getTripImage(String tripId) throws IOException;
 }

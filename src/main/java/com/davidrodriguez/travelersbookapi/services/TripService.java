@@ -7,12 +7,14 @@ import com.davidrodriguez.travelersbookapi.repositories.MemberRepository;
 import com.davidrodriguez.travelersbookapi.repositories.TripRepository;
 import com.davidrodriguez.travelersbookapi.repositories.UserRepository;
 import lombok.Data;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -127,11 +129,21 @@ public class TripService implements TripServiceInterface {
             trip.setMainImage(fileName);
             tripRepository.save(trip);
 
-            String uploadDir = "trip-images/" + trip.getId();
+            String uploadDir = "src/main/resources/trip-images/" + trip.getId();
 
             FileUploadUtil.saveFile(uploadDir, fileName, image);
         } else {
             throw new IllegalStateException("The requested trip wasn't found");
+        }
+    }
+
+    @Override
+    public ClassPathResource getTripImage(String tripId) throws IOException {
+        if(tripRepository.existsById(tripId)) {
+            Trip trip = tripRepository.findTripById(tripId);
+            return new ClassPathResource("trip-images/"+tripId+"/"+trip.getMainImage());
+        } else {
+            return null;
         }
     }
 }
