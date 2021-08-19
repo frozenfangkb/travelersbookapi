@@ -2,10 +2,7 @@ package com.davidrodriguez.travelersbookapi.services;
 
 import com.davidrodriguez.travelersbookapi.helpers.FileUploadUtil;
 import com.davidrodriguez.travelersbookapi.models.*;
-import com.davidrodriguez.travelersbookapi.repositories.DayRepository;
-import com.davidrodriguez.travelersbookapi.repositories.MemberRepository;
-import com.davidrodriguez.travelersbookapi.repositories.TripRepository;
-import com.davidrodriguez.travelersbookapi.repositories.UserRepository;
+import com.davidrodriguez.travelersbookapi.repositories.*;
 import lombok.Data;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -25,6 +22,7 @@ import static java.time.temporal.ChronoUnit.DAYS;
 @Service @Data @Transactional
 public class TripService implements TripServiceInterface {
     private final TripRepository tripRepository;
+    private final TripDescriptionRepository tripDescRepo;
     private final MemberRepository memberRepository;
     private final UserRepository userRepository;
     private final DayRepository dayRepository;
@@ -144,6 +142,27 @@ public class TripService implements TripServiceInterface {
             return new ClassPathResource("trip-images/"+tripId+"/"+trip.getMainImage());
         } else {
             return null;
+        }
+    }
+
+    @Override
+    public boolean updateTripSmallDescription(String tripId, String description) {
+        if(tripRepository.existsById(tripId)) {
+            Trip trip = tripRepository.findTripById(tripId);
+            if(trip.getTripDescription() != null) {
+                TripDescription tripDescription = trip.getTripDescription();
+                tripDescription.setSmallDescription(description);
+                tripDescRepo.save(tripDescription);
+            } else {
+                TripDescription tripDescription = new TripDescription();
+                tripDescription.setSmallDescription(description);
+                tripDescRepo.save(tripDescription);
+                trip.setTripDescription(tripDescription);
+                tripRepository.save(trip);
+            }
+            return true;
+        } else {
+            return false;
         }
     }
 }

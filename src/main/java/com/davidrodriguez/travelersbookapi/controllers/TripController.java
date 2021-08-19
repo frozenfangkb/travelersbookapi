@@ -71,4 +71,14 @@ public class TripController {
         tripService.uploadTripImage(image, tripId);
         return ResponseEntity.ok("Image uploaded OK");
     }
+
+    @PostMapping("/updateSmallDescription/{tripId}")
+    public ResponseEntity<String> updateSmallDescription(@PathVariable(value = "tripId") String tripId, @RequestBody String description) {
+        boolean result = tripService.updateTripSmallDescription(tripId, description);
+        if(result) {
+            return ResponseEntity.ok("Small description updated successfully");
+        } else {
+            return ResponseEntity.ok("Trip does not exist");
+        }
+    }
 }
